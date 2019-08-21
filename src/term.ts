@@ -16,6 +16,8 @@ export class Term<TermType extends string = string, Value extends string = strin
     this.value = value;
   }
 
+  // This is here as a default, if the class has more than these
+  // two properties, it MUST follow its own path equality
   equals(other?: unknown): boolean {
     return (
       isTerm(other) &&
