@@ -13,6 +13,7 @@ export class DefaultGraph extends Term<"DefaultGraph"> {
 
   constructor() {
     super("DefaultGraph", "");
+    // Singleton constructor
     if (!DefaultGraph.defaultGraph) {
       DefaultGraph.defaultGraph = this;
     }
