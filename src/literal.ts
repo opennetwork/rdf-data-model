@@ -1,11 +1,20 @@
 import { isTerm, Term } from "./term";
-import { NamedNode } from "./named-node";
+import { isNamedNode, NamedNode } from "./named-node";
 
 export function isLiteral(value?: unknown): value is Literal {
-  if (!isTerm(value)) {
+  function isLiteralInstance(value: unknown): value is Literal {
+    if (!isTerm(value)) {
+      return false;
+    }
+    return value.termType === "Literal";
+  }
+  if (!isLiteralInstance(value)) {
     return false;
   }
-  return value.termType === "Literal";
+  return (
+    typeof value.language === "string" &&
+    isNamedNode(value)
+  );
 }
 
 export class Literal extends Term<"Literal"> {

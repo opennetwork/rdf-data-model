@@ -6,15 +6,17 @@ import { Literal, isLiteral } from "./literal";
 import { DefaultGraph, isDefaultGraph } from "./default-graph";
 
 export function isQuad(value?: unknown): value is Quad {
-  if (typeof value !== "object") {
+  function isQuadInstance(value: unknown): value is Quad {
+    return typeof value === "object";
+  }
+  if (!isQuadInstance(value)) {
     return false;
   }
-  const asAny: any = value;
   return (
-    isQuadSubject(asAny["subject"]) &&
-    isQuadPredicate(asAny["predicate"]) &&
-    isQuadObject(asAny["object"]) &&
-    isQuadGraph(asAny["graph"])
+    isQuadSubject(value.subject) &&
+    isQuadPredicate(value.predicate) &&
+    isQuadObject(value.object) &&
+    isQuadGraph(value.graph)
   );
 }
 

@@ -1,9 +1,11 @@
 export function isTerm(value?: unknown): value is Term {
-  if (typeof value !== "object") {
+  function isTermInstance(value: unknown): value is Term {
+    return typeof value === "object";
+  }
+  if (!isTermInstance(value)) {
     return false;
   }
-  const asAny: any = value;
-  return typeof asAny["termType"] === "string" && typeof asAny["value"] === "string";
+  return typeof value.termType === "string" && typeof value.value === "string";
 }
 
 export class Term<TermType extends string = string, Value extends string = string> {
