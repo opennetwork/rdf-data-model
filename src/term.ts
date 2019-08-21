@@ -1,3 +1,11 @@
+export function isTerm(value?: unknown): value is Term {
+  if (typeof value !== "object") {
+    return false;
+  }
+  const asAny: any = value;
+  return typeof asAny["termType"] === "string" && typeof asAny["value"] === "string";
+}
+
 export class Term<TermType extends string = string, Value extends string = string> {
 
   readonly termType: TermType;
@@ -10,18 +18,10 @@ export class Term<TermType extends string = string, Value extends string = strin
 
   equals(other?: unknown): boolean {
     return (
-      Term.is(other) &&
+      isTerm(other) &&
       this.termType === other.termType &&
       this.value == other.value
     );
-  }
-
-  static is(other?: unknown): other is Term {
-    if (typeof other !== "object") {
-      return false;
-    }
-    const asAny: any = other;
-    return typeof asAny["termType"] === "string" && typeof asAny["value"] === "string";
   }
 
   toJSON(): object {

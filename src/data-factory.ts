@@ -1,10 +1,10 @@
-import { NamedNode } from "./named-node";
-import { BlankNode } from "./blank-node";
-import { Literal } from "./literal";
-import { Variable } from "./variable";
-import { DefaultGraph } from "./default-graph";
-import { Quad, QuadGraph, QuadObject, QuadPredicate, QuadSubject } from "./quad";
-import { Term } from "./term";
+import { isNamedNode, NamedNode } from "./named-node";
+import { BlankNode, isBlankNode } from "./blank-node";
+import { isLiteral, Literal } from "./literal";
+import { isVariable, Variable } from "./variable";
+import { DefaultGraph, isDefaultGraph } from "./default-graph";
+import { isQuad, Quad } from "./quad";
+import { isTerm, Term } from "./term";
 import UUID from "pure-uuid";
 
 export class DataFactory {
@@ -20,7 +20,7 @@ export class DataFactory {
   literal(value: string, languageOrDataType?: string | NamedNode): Literal {
     if (typeof languageOrDataType === "string") {
       return new Literal(value, languageOrDataType, this.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"));
-    } else if (NamedNode.is(languageOrDataType)) {
+    } else if (isNamedNode(languageOrDataType)) {
       return new Literal(value, "", languageOrDataType);
     } else {
       return new Literal(value, "", this.namedNode("http://www.w3.org/2001/XMLSchema#string"));
@@ -40,18 +40,18 @@ export class DataFactory {
   }
 
   fromTerm(term: unknown): NamedNode | BlankNode | Literal | Variable | DefaultGraph {
-    if (!Term.is(term)) {
+    if (!isTerm(term)) {
       throw new Error("Provided value is not a Term");
     }
-    if (NamedNode.is(term)) {
+    if (isNamedNode(term)) {
       return this.namedNode(term.value);
-    } else if (BlankNode.is(term)) {
+    } else if (isBlankNode(term)) {
       return this.blankNode(term.value);
-    } else if (Literal.is(term)) {
+    } else if (isLiteral(term)) {
       return new Literal(term.value, term.language, term.datatype);
-    } else if (Variable.is(term)) {
+    } else if (isVariable(term)) {
       return new Variable(term.value);
-    } else if (DefaultGraph.is(term)) {
+    } else if (isDefaultGraph(term)) {
       return this.defaultGraph();
     }
     // Unknown
@@ -59,7 +59,7 @@ export class DataFactory {
   }
 
   fromQuad(quad: unknown): Quad {
-    if (!Quad.is(quad)) {
+    if (!isQuad(quad)) {
       throw new Error("Provided value is not a Quad");
     }
     return this.quad(

@@ -1,4 +1,11 @@
-import { Term } from "./term";
+import { isTerm, Term } from "./term";
+
+export function isVariable(value?: unknown): value is Variable {
+  if (!isTerm(value)) {
+    return false;
+  }
+  return value.termType === "Variable";
+}
 
 export class Variable extends Term<"Variable"> {
 
@@ -8,13 +15,9 @@ export class Variable extends Term<"Variable"> {
 
   equals(other: Term): boolean {
     return !!(
-      Variable.is(other) &&
+      isVariable(other) &&
       other.value === this.value
     );
-  }
-
-  static is(other?: unknown): other is Variable {
-    return Term.is(other) && other.termType === "Variable";
   }
 
 }

@@ -1,4 +1,11 @@
-import { Term } from "./term";
+import { isTerm, Term } from "./term";
+
+export function isDefaultGraph(value?: unknown): value is DefaultGraph {
+  if (!isTerm(value)) {
+    return false;
+  }
+  return value.termType === "DefaultGraph";
+}
 
 export class DefaultGraph extends Term<"DefaultGraph"> {
 
@@ -14,13 +21,9 @@ export class DefaultGraph extends Term<"DefaultGraph"> {
 
   equals(other: Term): boolean {
     return !!(
-      DefaultGraph.is(other) &&
+      isDefaultGraph(other) &&
       other.value === this.value
     );
-  }
-
-  static is(other?: Term): other is DefaultGraph {
-    return Term.is(other) && other.termType === "DefaultGraph";
   }
 
 }

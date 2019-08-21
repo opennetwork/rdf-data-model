@@ -1,8 +1,14 @@
-export * from "./blank-node";
+export { isBlankNode } from "./blank-node";
 export * from "./data-factory";
-export * from "./default-graph";
-export * from "./literal";
-export * from "./named-node";
-export * from "./quad";
-export * from "./term";
-export * from "./variable";
+export { isDefaultGraph } from "./default-graph";
+export { isLiteral } from "./literal";
+export { isNamedNode } from "./named-node";
+export {
+  isQuadGraph,
+  isQuadObject,
+  isQuadPredicate,
+  isQuad,
+  isQuadSubject
+} from "./quad";
+export { isTerm } from "./term";
+export { isVariable } from "./variable";

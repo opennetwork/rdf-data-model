@@ -1,5 +1,12 @@
-import { Term } from "./term";
+import { isTerm, Term } from "./term";
 import { NamedNode } from "./named-node";
+
+export function isLiteral(value?: unknown): value is Literal {
+  if (!isTerm(value)) {
+    return false;
+  }
+  return value.termType === "Literal";
+}
 
 export class Literal extends Term<"Literal"> {
 
@@ -14,15 +21,11 @@ export class Literal extends Term<"Literal"> {
 
   equals(other: Term): boolean {
     return !!(
-      Literal.is(other) &&
+      isLiteral(other) &&
       other.value === this.value &&
       other.language === this.language &&
       other.datatype.equals(this.datatype)
     );
-  }
-
-  static is(other?: unknown): other is Literal {
-    return Term.is(other) && other.termType === "Literal";
   }
 
   toJSON() {

@@ -1,4 +1,11 @@
-import { Term } from "./term";
+import { Term, isTerm } from "./term";
+
+export function isBlankNode(value: unknown): value is BlankNode {
+  if (!isTerm(value)) {
+    return false;
+  }
+  return value.termType === "BlankNode";
+}
 
 export class BlankNode extends Term<"BlankNode"> {
 
@@ -8,16 +15,9 @@ export class BlankNode extends Term<"BlankNode"> {
 
   equals(other: Term): boolean {
     return !!(
-      BlankNode.is(other) &&
+      isBlankNode(other) &&
       other.value === this.value
     );
-  }
-
-  static is(other?: unknown): other is BlankNode {
-    if (!Term.is(other)) {
-      return false;
-    }
-    return Term.is(other) && other.termType === "BlankNode";
   }
 
 }

@@ -1,4 +1,11 @@
-import { Term } from "./term";
+import { Term, isTerm } from "./term";
+
+export function isNamedNode(value: unknown): value is NamedNode {
+  if (!isTerm(value)) {
+    return false;
+  }
+  return value.termType === "NamedNode";
+}
 
 export class NamedNode extends Term<"NamedNode"> {
 
@@ -8,13 +15,9 @@ export class NamedNode extends Term<"NamedNode"> {
 
   equals(other: Term): boolean {
     return !!(
-      NamedNode.is(other) &&
+      isNamedNode(other) &&
       other.value === this.value
     );
-  }
-
-  static is(other?: unknown): other is NamedNode {
-    return Term.is(other) && other.termType === "NamedNode";
   }
 
 }
