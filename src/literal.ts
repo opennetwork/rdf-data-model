@@ -21,7 +21,7 @@ export class Literal extends Term<"Literal"> {
     );
   }
 
-  static is(other?: Term): other is Literal {
+  static is(other?: unknown): other is Literal {
     return Term.is(other) && other.termType === "Literal";
   }
 

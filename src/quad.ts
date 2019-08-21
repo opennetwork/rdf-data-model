@@ -17,7 +17,19 @@ export class Quad {
   readonly object: QuadObject;
   readonly graph: QuadGraph;
 
-  constructor(subject: QuadSubject, predicate: QuadPredicate, object: QuadObject, graph: QuadGraph) {
+  constructor(subject: Term, predicate: Term, object: Term, graph: Term) {
+    if (!(NamedNode.is(subject) || BlankNode.is(subject) || Variable.is(subject))) {
+      throw new Error("Invalid subject, expected NamedNode | BlankNode | Variable");
+    }
+    if (!(NamedNode.is(predicate) || Variable.is(predicate))) {
+      throw new Error("Invalid predicate, expected NamedNode | Variable");
+    }
+    if (!(NamedNode.is(object) || Literal.is(object) || BlankNode.is(object) || Variable.is(object))) {
+      throw new Error("Invalid object, expected NamedNode | Literal | BlankNode | Variable");
+    }
+    if (!(DefaultGraph.is(graph) || NamedNode.is(graph) || BlankNode.is(graph) || Variable.is(graph))) {
+      throw new Error("Invalid object, expected DefaultGraph | NamedNode | BlankNode | Variable");
+    }
     this.subject = subject;
     this.predicate = predicate;
     this.object = object;
@@ -34,8 +46,17 @@ export class Quad {
     );
   }
 
-  static is(other?: Quad): other is Quad {
-    return !!other;
+  static is(other?: unknown): other is Quad {
+    if (typeof other !== "object") {
+      return false;
+    }
+    const asAny: any = other;
+    return !!(
+      Term.is(asAny["subject"]) &&
+      Term.is(asAny["predicate"]) &&
+      Term.is(asAny["object"]) &&
+      Term.is(asAny["graph"])
+    );
   }
 
   toJSON() {

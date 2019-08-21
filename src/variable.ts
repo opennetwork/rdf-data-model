@@ -13,7 +13,7 @@ export class Variable extends Term<"Variable"> {
     );
   }
 
-  static is(other?: Term): other is Variable {
+  static is(other?: unknown): other is Variable {
     return Term.is(other) && other.termType === "Variable";
   }
 

@@ -13,7 +13,10 @@ export class BlankNode extends Term<"BlankNode"> {
     );
   }
 
-  static is(other?: Term): other is BlankNode {
+  static is(other?: unknown): other is BlankNode {
+    if (!Term.is(other)) {
+      return false;
+    }
     return Term.is(other) && other.termType === "BlankNode";
   }
 

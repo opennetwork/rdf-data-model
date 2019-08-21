@@ -35,11 +35,14 @@ export class DataFactory {
     return new DefaultGraph();
   }
 
-  quad(subject: QuadSubject, predicate: QuadPredicate, object: QuadObject, graph?: QuadGraph): Quad {
+  quad(subject: Term, predicate: Term, object: Term, graph?: Term): Quad {
     return new Quad(subject, predicate, object, graph || this.defaultGraph());
   }
 
-  fromTerm(term: Term): Term {
+  fromTerm(term: unknown): NamedNode | BlankNode | Literal | Variable | DefaultGraph {
+    if (!Term.is(term)) {
+      throw new Error("Provided value is not a Term");
+    }
     if (NamedNode.is(term)) {
       return this.namedNode(term.value);
     } else if (BlankNode.is(term)) {
@@ -52,11 +55,19 @@ export class DataFactory {
       return this.defaultGraph();
     }
     // Unknown
-    return term;
+    throw new Error("Invalid term type, expected one of NamedNode | BlankNode | Literal | Variable | DefaultGraph");
   }
 
-  fromQuad(quad: Quad): Quad {
-    return this.quad(quad.subject, quad.predicate, quad.object, quad.graph);
+  fromQuad(quad: unknown): Quad {
+    if (!Quad.is(quad)) {
+      throw new Error("Provided value is not a Quad");
+    }
+    return this.quad(
+      this.fromTerm(quad.subject),
+      this.fromTerm(quad.predicate),
+      this.fromTerm(quad.object),
+      this.fromTerm(quad.graph)
+    );
   }
 
 }

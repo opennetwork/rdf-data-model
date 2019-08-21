@@ -13,7 +13,7 @@ export class NamedNode extends Term<"NamedNode"> {
     );
   }
 
-  static is(other?: Term): other is NamedNode {
+  static is(other?: unknown): other is NamedNode {
     return Term.is(other) && other.termType === "NamedNode";
   }
 
