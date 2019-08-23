@@ -28,7 +28,14 @@ export function isTerm<TermType extends string = string, Value extends string = 
   return hasEquals(value);
 }
 
-export class Term<TermType extends string = string, Value extends string = string> {
+export interface Term<TermType extends string = string, Value extends string = string> {
+  readonly termType: TermType;
+  readonly value: Value;
+
+  equals(other: unknown): other is TermLike<TermType, Value>;
+}
+
+export class TermImplementation<TermType extends string = string, Value extends string = string> implements Term<TermType, Value> {
 
   readonly termType: TermType;
   readonly value: Value;

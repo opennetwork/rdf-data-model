@@ -1,9 +1,17 @@
-import { isNamedNodeLike, NamedNode, NamedNodeLike } from "./named-node";
-import { isBlankNodeLike, BlankNode, BlankNodeLike } from "./blank-node";
-import { isLiteralLike, Literal, LiteralLike } from "./literal";
-import { isVariableLike, Variable, VariableLike } from "./variable";
-import { isDefaultGraphLike, DefaultGraph, DefaultGraphLike } from "./default-graph";
-import { isQuadLike, Quad, QuadGraphLike, QuadObjectLike, QuadPredicateLike, QuadSubjectLike } from "./quad";
+import { isNamedNodeLike, NamedNode, NamedNodeImplementation, NamedNodeLike } from "./named-node";
+import { isBlankNodeLike, BlankNode, BlankNodeLike, BlankNodeImplementation } from "./blank-node";
+import { isLiteralLike, Literal, LiteralImplementation, LiteralLike } from "./literal";
+import { isVariableLike, Variable, VariableImplementation, VariableLike } from "./variable";
+import { isDefaultGraphLike, DefaultGraph, DefaultGraphLike, DefaultGraphImplementation } from "./default-graph";
+import {
+  isQuadLike,
+  Quad,
+  QuadGraphLike,
+  QuadImplementation,
+  QuadObjectLike,
+  QuadPredicateLike,
+  QuadSubjectLike
+} from "./quad";
 import { isTermLike } from "./term";
 import UUID from "pure-uuid";
 
@@ -18,21 +26,21 @@ export type MappedTermLike<T = unknown> =
 export class DataFactory {
 
   namedNode(value: string): NamedNode {
-    return new NamedNode(value);
+    return new NamedNodeImplementation(value);
   }
 
   blankNode(value?: string): BlankNode {
-    return new BlankNode((value || `blank-${new UUID(4).format()}`).replace(/^_:/, ""));
+    return new BlankNodeImplementation((value || `blank-${new UUID(4).format()}`).replace(/^_:/, ""));
   }
 
   literal(value: string, languageOrDataType?: string | NamedNodeLike): Literal {
     const getLiteral = (value: string, languageOrDataType?: string | NamedNodeLike): Literal => {
       if (typeof languageOrDataType === "string") {
-        return new Literal(value, languageOrDataType, this.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"));
+        return new LiteralImplementation(value, languageOrDataType, this.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"));
       } else if (isNamedNodeLike(languageOrDataType)) {
-        return new Literal(value, "", this.fromTerm(languageOrDataType));
+        return new LiteralImplementation(value, "", this.fromTerm(languageOrDataType));
       } else {
-        return new Literal(value, "", this.namedNode("http://www.w3.org/2001/XMLSchema#string"));
+        return new LiteralImplementation(value, "", this.namedNode("http://www.w3.org/2001/XMLSchema#string"));
       }
     };
     // "value"@en
@@ -61,15 +69,15 @@ export class DataFactory {
   }
 
   variable(value: string): Variable {
-    return new Variable(value.replace(/^\?/, ""));
+    return new VariableImplementation(value.replace(/^\?/, ""));
   }
 
   defaultGraph(): DefaultGraph {
-    return new DefaultGraph();
+    return new DefaultGraphImplementation();
   }
 
   quad(subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad {
-    return new Quad(
+    return new QuadImplementation(
       this.fromTerm(subject),
       this.fromTerm(predicate),
       this.fromTerm(object),
@@ -88,7 +96,7 @@ export class DataFactory {
     } else if (isLiteralLike(term)) {
       return this.literal(term.value, isNamedNodeLike(term.datatype) ? term.datatype : term.language) as MappedTermLike<T>;
     } else if (isVariableLike(term)) {
-      return new Variable(term.value) as MappedTermLike<T>;
+      return this.variable(term.value) as MappedTermLike<T>;
     } else if (isDefaultGraphLike(term)) {
       return this.defaultGraph() as MappedTermLike<T>;
     }

@@ -1,4 +1,3 @@
-import { Term, isTerm } from "./term";
 import { BlankNode, BlankNodeLike, isBlankNode, isBlankNodeLike } from "./blank-node";
 import { NamedNode, isNamedNode, NamedNodeLike, isNamedNodeLike } from "./named-node";
 import { Variable, isVariable, VariableLike, isVariableLike } from "./variable";
@@ -75,7 +74,16 @@ export function isQuadGraphLike(value?: unknown): value is QuadGraphLike {
   return isDefaultGraphLike(value) || isNamedNodeLike(value) || isBlankNodeLike(value) || isVariableLike(value);
 }
 
-export class Quad {
+export interface Quad {
+  readonly subject: QuadSubject;
+  readonly predicate: QuadPredicate;
+  readonly object: QuadObject;
+  readonly graph: QuadGraph;
+
+  equals(other?: unknown): other is QuadLike;
+}
+
+export class QuadImplementation implements Quad {
 
   readonly subject: QuadSubject;
   readonly predicate: QuadPredicate;
@@ -89,9 +97,9 @@ export class Quad {
     this.graph = graph;
   }
 
-  equals(other?: unknown): boolean {
+  equals(other: unknown): other is QuadLike {
     return !!(
-      isQuad(other) &&
+      isQuadLike(other) &&
       this.subject.equals(other.subject) &&
       this.predicate.equals(other.predicate) &&
       this.object.equals(other.object) &&
