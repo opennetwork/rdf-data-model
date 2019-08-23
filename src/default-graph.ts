@@ -1,13 +1,14 @@
-import { isTerm, Term } from "./term";
+import { isTerm, isTermLike, Term } from "./term";
 
-export function isDefaultGraph(value?: unknown): value is DefaultGraph {
-  if (!isTerm(value)) {
-    return false;
-  }
-  return value.termType === "DefaultGraph";
+export function isDefaultGraphLike(given: unknown): given is DefaultGraphLike {
+  return isTermLike(given, "DefaultGraph", "");
 }
 
-export class DefaultGraph extends Term<"DefaultGraph"> {
+export function isDefaultGraph(given: unknown): given is DefaultGraph {
+  return isTerm(given, "DefaultGraph", "");
+}
+
+export class DefaultGraph extends Term<"DefaultGraph", ""> {
 
   private static defaultGraph?: DefaultGraph;
 
@@ -20,11 +21,10 @@ export class DefaultGraph extends Term<"DefaultGraph"> {
     return DefaultGraph.defaultGraph;
   }
 
-  equals(other: Term): boolean {
-    return !!(
-      isDefaultGraph(other) &&
-      other.value === this.value
-    );
+  equals(other: unknown): other is DefaultGraphLike {
+    return isDefaultGraphLike(other);
   }
 
 }
+
+export type DefaultGraphLike = Pick<DefaultGraph, "termType" | "value">;

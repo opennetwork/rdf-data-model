@@ -1,23 +1,23 @@
-import { isTerm, Term } from "./term";
+import { isTerm, isTermLike, Term } from "./term";
 
-export function isVariable(value?: unknown): value is Variable {
-  if (!isTerm(value)) {
-    return false;
-  }
-  return value.termType === "Variable";
+export function isVariableLike<Value extends string = string>(given: unknown, value?: Value): given is VariableLike<Value> {
+  return isTermLike(given, "Variable", value);
 }
 
-export class Variable extends Term<"Variable"> {
+export function isVariable<Value extends string = string>(given: unknown, value?: Value): given is Variable {
+  return isTerm(given, "Variable", value);
+}
 
-  constructor(value: string) {
+export class Variable<Value extends string = string> extends Term<"Variable", Value> {
+
+  constructor(value: Value) {
     super("Variable", value);
   }
 
-  equals(other: Term): boolean {
-    return !!(
-      isVariable(other) &&
-      other.value === this.value
-    );
+  equals(other: unknown): other is VariableLike<Value> {
+    return isVariableLike(other, this.value);
   }
 
 }
+
+export type VariableLike<Value extends string = string> = Pick<Variable<Value>, "termType" | "value">;

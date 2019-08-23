@@ -1,23 +1,24 @@
-import { Term, isTerm } from "./term";
+import { Term, isTerm, isTermLike } from "./term";
 
-export function isBlankNode(value: unknown): value is BlankNode {
-  if (!isTerm(value)) {
-    return false;
-  }
-  return value.termType === "BlankNode";
+export function isBlankNodeLike<Value extends string = string>(given: unknown, value?: Value): given is BlankNodeLike<Value> {
+  return isTermLike(given, "BlankNode", value);
 }
 
-export class BlankNode extends Term<"BlankNode"> {
+export function isBlankNode<Value extends string = string>(given: unknown, value?: Value): given is BlankNode {
+  return isTerm(given, "BlankNode", value);
+}
 
-  constructor(value: string) {
+export class BlankNode<Value extends string = string> extends Term<"BlankNode", Value> {
+
+  constructor(value: Value) {
     super("BlankNode", value);
   }
 
-  equals(other: Term): boolean {
-    return !!(
-      isBlankNode(other) &&
-      other.value === this.value
-    );
+  equals(other: unknown): other is BlankNodeLike<Value> {
+    return isBlankNodeLike(other, this.value);
   }
 
 }
+
+
+export type BlankNodeLike<Value extends string = string> = Pick<BlankNode<Value>, "termType" | "value">;

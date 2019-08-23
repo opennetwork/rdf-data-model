@@ -1,39 +1,65 @@
-import { isTerm, Term } from "./term";
+import { isTerm, isTermLike, Term } from "./term";
 import { isNamedNode, NamedNode } from "./named-node";
+import { NamedNodeLike, isNamedNodeLike } from "./named-node";
+import { hasKey } from "./has-key";
 
-export function isLiteral(value?: unknown): value is Literal {
-  function isLiteralInstance(value: unknown): value is Literal {
-    if (!isTerm(value)) {
-      return false;
-    }
-    return value.termType === "Literal";
-  }
-  if (!isLiteralInstance(value)) {
-    return false;
-  }
+export function isLiteralLike<Value extends string = string>(given: unknown, value?: Value): given is LiteralLike<Value> {
   return (
-    typeof value.language === "string" &&
-    isNamedNode(value)
+    isTermLike(given, "Literal", value) &&
+    hasKey(given, "language") &&
+    typeof given.language === "string" &&
+    (
+      !hasKey(given, "datatype") ||
+      (
+        hasKey(given, "datatype") &&
+        !given.datatype
+      ) ||
+      (
+        hasKey(given, "datatype") &&
+        isNamedNodeLike(given)
+      )
+    )
   );
 }
 
-export class Literal extends Term<"Literal"> {
+export function isLiteral<Value extends string = string>(given: unknown, value?: Value): given is Literal<Value> {
+  return (
+    isTerm(given, "Literal", value) &&
+    hasKey(given, "language") &&
+    typeof given.language === "string" &&
+    (
+      !hasKey(given, "datatype") ||
+      (
+        hasKey(given, "datatype") &&
+        !given.datatype
+      ) ||
+      (
+        hasKey(given, "datatype") &&
+        isNamedNode(given)
+      )
+    )
+  );
+}
+
+export class Literal<Value extends string = string> extends Term<"Literal", Value> {
 
   readonly language: string;
   readonly datatype?: NamedNode;
 
-  constructor(value: string, language: string, datatype: NamedNode) {
+  constructor(value: Value, language: string, datatype: NamedNode) {
     super("Literal", value);
     this.language = language || "";
     this.datatype = datatype;
   }
 
-  equals(other: Term): boolean {
-    return !!(
-      isLiteral(other) &&
-      other.value === this.value &&
-      other.language === this.language &&
-      other.datatype.equals(this.datatype)
+  equals(other: unknown): other is LiteralLike<Value> {
+    return (
+      isLiteralLike(other, this.value) &&
+      this.language === this.language &&
+      (
+        (!this.datatype && !other.datatype) ||
+        (this.datatype && this.datatype.equals(other.datatype))
+      )
     );
   }
 
@@ -47,3 +73,7 @@ export class Literal extends Term<"Literal"> {
   }
 
 }
+
+export type LiteralLike<Value extends string = string> = Pick<Literal<Value>, "termType" | "value" | "language"> & {
+  datatype?: NamedNodeLike;
+};
