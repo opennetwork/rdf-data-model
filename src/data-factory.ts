@@ -25,15 +25,15 @@ export type MappedTermLike<T = unknown> =
 
 export class DataFactory {
 
-  namedNode(value: string): NamedNode {
+  namedNode = (value: string): NamedNode => {
     return new NamedNodeImplementation(value);
-  }
+  };
 
-  blankNode(value?: string): BlankNode {
+  blankNode = (value?: string): BlankNode => {
     return new BlankNodeImplementation((value || `blank-${new UUID(4).format()}`).replace(/^_:/, ""));
-  }
+  };
 
-  literal(value: string, languageOrDataType?: string | NamedNodeLike): Literal {
+  literal = (value: string, languageOrDataType?: string | NamedNodeLike): Literal => {
     const getLiteral = (value: string, languageOrDataType?: string | NamedNodeLike): Literal => {
       if (typeof languageOrDataType === "string") {
         return new LiteralImplementation(value, languageOrDataType, this.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"));
@@ -65,27 +65,26 @@ export class DataFactory {
       return getLiteral(newValue, rest.substr(1, rest.length - 2));
     }
     return getLiteral(value, languageOrDataType);
+  };
 
-  }
-
-  variable(value: string): Variable {
+  variable = (value: string): Variable => {
     return new VariableImplementation(value.replace(/^\?/, ""));
-  }
+  };
 
-  defaultGraph(): DefaultGraph {
+  defaultGraph = (): DefaultGraph => {
     return new DefaultGraphImplementation();
-  }
+  };
 
-  quad(subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad {
+  quad = (subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad => {
     return new QuadImplementation(
       this.fromTerm(subject),
       this.fromTerm(predicate),
       this.fromTerm(object),
       this.fromTerm(graph)
     );
-  }
+  };
 
-  fromTerm<T = unknown>(term: T): MappedTermLike<T> {
+  fromTerm = <T = unknown>(term: T): MappedTermLike<T> => {
     if (!isTermLike(term)) {
       throw new Error("Provided value is not a Term");
     }
@@ -102,14 +101,14 @@ export class DataFactory {
     }
     // Unknown
     throw new Error("Invalid term type, expected one of NamedNode | BlankNode | Literal | Variable | DefaultGraph");
-  }
+  };
 
-  fromQuad(quad: unknown): Quad {
+  fromQuad = (quad: unknown): Quad => {
     if (!isQuadLike(quad)) {
       throw new Error("Provided value is not a Quad");
     }
     return this.quad(quad.subject, quad.predicate, quad.object, quad.graph);
-  }
+  };
 
 }
 
