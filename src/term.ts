@@ -12,7 +12,7 @@ export function isTermLike<TermType extends string = string, Value extends strin
   if (typeof termType === "string" && given.termType !== termType) {
     return false;
   }
-  if (typeof value === "string" && given.value === value) {
+  if (typeof value === "string" && given.value !== value) {
     return false;
   }
   return true;
