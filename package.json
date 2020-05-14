@@ -1,18 +1,22 @@
 {
   "name": "@opennetwork/rdf-data-model",
   "version": "4.0.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./esnext/index.d.ts",
   "license": "MIT",
+  "type": "module",
+  "main": "./esnext/index.js",
+  "author": "Fabian Cook <hello@fabiancook.dev>",
+  "private": false,
   "scripts": {
-    "build": "tsc --declaration && npm run tslint",
+    "build": "rm -rf esnext && tsc && npm run tslint && npm run postbuild",
+    "postbuild": "node scripts/post-build.js",
     "watch": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {},
   "dependencies": {
-    "pure-uuid": "^1.5.7"
+    "pure-uuid": "^1.6.0"
   },
   "repository": {
     "type": "git",
@@ -20,7 +24,8 @@
   },
   "devDependencies": {
     "esm": "^3.2.25",
-    "tslint": "^5.19.0",
-    "typescript": "^3.5.3"
+    "filehound": "^1.17.4",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.2"
   }
 }
