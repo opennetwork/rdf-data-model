@@ -18,18 +18,18 @@ export function isQuadLike(given: unknown): given is QuadLike {
   );
 }
 
-export function isQuad(value?: unknown): value is Quad {
-  function isQuadInstance(value: unknown): value is Quad {
-    return typeof value === "object";
+export function isQuad(given?: unknown): given is Quad {
+  function isQuadInstance(given: unknown): given is Partial<Record<keyof Quad, unknown>> {
+    return typeof given === "object";
   }
-  if (!isQuadInstance(value)) {
+  if (!isQuadInstance(given)) {
     return false;
   }
   return (
-    isQuadSubject(value.subject) &&
-    isQuadPredicate(value.predicate) &&
-    isQuadObject(value.object) &&
-    isQuadGraph(value.graph)
+    isQuadSubject(given.subject) &&
+    isQuadPredicate(given.predicate) &&
+    isQuadObject(given.object) &&
+    isQuadGraph(given.graph)
   );
 }
 

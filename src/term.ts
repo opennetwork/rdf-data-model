@@ -22,10 +22,10 @@ export function isTerm<TermType extends string = string, Value extends string = 
   if (!isTermLike(given, termType, value)) {
     return false;
   }
-  function hasEquals(value: any): value is Record<"equals", () => {}> {
-    return !!(value && value.equals instanceof Function);
+  function hasEquals(given: any): given is Record<"equals", () => {}> {
+    return !!(given && given.equals instanceof Function);
   }
-  return hasEquals(value);
+  return hasEquals(given);
 }
 
 export interface Term<TermType extends string = string, Value extends string = string> {
