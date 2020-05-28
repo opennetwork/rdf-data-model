@@ -16,7 +16,7 @@ export function isLiteralLike<Value extends string = string>(given: unknown, val
       ) ||
       (
         hasKey(given, "datatype") &&
-        isNamedNodeLike(given)
+        isNamedNodeLike(given.datatype)
       )
     )
   );
@@ -35,7 +35,7 @@ export function isLiteral<Value extends string = string>(given: unknown, value?:
       ) ||
       (
         hasKey(given, "datatype") &&
-        isNamedNode(given)
+        isNamedNode(given.datatype)
       )
     )
   );
