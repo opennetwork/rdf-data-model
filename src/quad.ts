@@ -1,7 +1,7 @@
 import { BlankNode, BlankNodeLike, isBlankNode, isBlankNodeLike } from "./blank-node";
 import { NamedNode, isNamedNode, NamedNodeLike, isNamedNodeLike } from "./named-node";
 import { Variable, isVariable, VariableLike, isVariableLike } from "./variable";
-import { Literal, isLiteral } from "./literal";
+import { Literal, isLiteral, LiteralLike, isLiteralLike } from "./literal";
 import { DefaultGraph, DefaultGraphLike, isDefaultGraph, isDefaultGraphLike } from "./default-graph";
 import { hasKey } from "./has-key";
 
@@ -39,7 +39,7 @@ export type QuadObject = NamedNode | Literal | BlankNode | Variable;
 export type QuadGraph = DefaultGraph | NamedNode | BlankNode | Variable;
 export type QuadSubjectLike = NamedNodeLike | BlankNodeLike | VariableLike;
 export type QuadPredicateLike = NamedNodeLike | VariableLike;
-export type QuadObjectLike = NamedNodeLike | Literal | BlankNodeLike | VariableLike;
+export type QuadObjectLike = NamedNodeLike | LiteralLike | BlankNodeLike | VariableLike;
 export type QuadGraphLike = DefaultGraphLike | NamedNodeLike | BlankNodeLike | VariableLike;
 
 export function isQuadSubject(value?: unknown): value is QuadSubject {
@@ -67,7 +67,7 @@ export function isQuadPredicateLike(value?: unknown): value is QuadPredicateLike
 }
 
 export function isQuadObjectLike(value?: unknown): value is QuadObjectLike {
-  return isNamedNodeLike(value) || isLiteral(value) || isBlankNodeLike(value) || isVariableLike(value);
+  return isNamedNodeLike(value) || isLiteralLike(value) || isBlankNodeLike(value) || isVariableLike(value);
 }
 
 export function isQuadGraphLike(value?: unknown): value is QuadGraphLike {
