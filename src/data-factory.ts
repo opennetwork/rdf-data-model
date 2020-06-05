@@ -23,11 +23,26 @@ export type MappedTermLike<T = unknown> =
   T extends DefaultGraphLike ? DefaultGraph :
   NamedNode | BlankNode | Literal | Variable | DefaultGraph;
 
+export interface DataFactory {
+  namedNode<Value extends string>(value: Value): NamedNode<Value>;
+  blankNode(value?: string): BlankNode;
+  literal(value: string, languageOrDataType?: string | NamedNodeLike): Literal;
+  variable(value: string): Variable;
+  defaultGraph(): DefaultGraph;
+  quad(subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad;
+  fromTerm<T = unknown>(term: T): MappedTermLike<T>;
+  fromQuad(quad: unknown): Quad;
+}
+
 export class DataFactory {
 
-  namedNode = (value: string): NamedNode => {
+  constructor() {
+    this.namedNode = this.namedNode.bind(this);
+  }
+
+  namedNode<Value extends string>(value: Value): NamedNode<Value> {
     return new NamedNodeImplementation(value);
-  };
+  }
 
   blankNode = (value?: string): BlankNode => {
     return new BlankNodeImplementation((value || `blank-${new UUID(4).format()}`).replace(/^_:/, ""));
