@@ -1,4 +1,4 @@
-import { Term, isTerm, isTermLike, TermImplementation } from "./term";
+import { Term, isTerm, isTermLike } from "./term";
 
 export function isBlankNodeLike<Value extends string = string>(given: unknown, value?: Value): given is BlankNodeLike<Value> {
   return isTermLike(given, "BlankNode", value);
@@ -12,7 +12,7 @@ export interface BlankNode<Value extends string = string> extends Term<"BlankNod
   equals(other: unknown): other is BlankNodeLike<Value>;
 }
 
-export class BlankNodeImplementation<Value extends string = string> extends TermImplementation<"BlankNode", Value> implements BlankNode<Value> {
+export class BlankNode<Value extends string = string> extends Term<"BlankNode", Value> implements BlankNode<Value> {
 
   constructor(value: Value) {
     super("BlankNode", value);

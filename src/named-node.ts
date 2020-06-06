@@ -1,4 +1,4 @@
-import { Term, isTerm, isTermLike, TermImplementation } from "./term";
+import { Term, isTerm, isTermLike } from "./term";
 
 export function isNamedNodeLike<Value extends string = string>(given: unknown, value?: Value): given is NamedNodeLike<Value> {
   return isTermLike(given, "NamedNode", value);
@@ -14,7 +14,7 @@ export interface NamedNode<Value extends string = string> extends Term<"NamedNod
 
 export type NamedNodeLike<Value extends string = string> = Pick<NamedNode<Value>, "termType" | "value">;
 
-export class NamedNodeImplementation<Value extends string = string> extends TermImplementation<"NamedNode", Value> implements NamedNode<Value> {
+export class NamedNode<Value extends string = string> extends Term<"NamedNode", Value> implements NamedNode<Value> {
 
   constructor(value: Value) {
     super("NamedNode", value);

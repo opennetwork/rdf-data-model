@@ -35,14 +35,9 @@ export interface Term<TermType extends string = string, Value extends string = s
   equals(other: unknown): other is TermLike<TermType, Value>;
 }
 
-export class TermImplementation<TermType extends string = string, Value extends string = string> implements Term<TermType, Value> {
+export class Term<TermType extends string = string, Value extends string = string> implements Term<TermType, Value> {
 
-  readonly termType: TermType;
-  readonly value: Value;
-
-  protected constructor(termType: TermType, value: Value) {
-    this.termType = termType;
-    this.value = value;
+  protected constructor(readonly termType: TermType, readonly value: Value) {
   }
 
   // This is here as a default, if the class has more than these

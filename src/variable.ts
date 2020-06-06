@@ -1,4 +1,4 @@
-import { isTerm, isTermLike, Term, TermImplementation } from "./term";
+import { isTerm, isTermLike, Term } from "./term";
 
 export function isVariableLike<Value extends string = string>(given: unknown, value?: Value): given is VariableLike<Value> {
   return isTermLike(given, "Variable", value);
@@ -12,7 +12,7 @@ export interface Variable<Value extends string = string> extends Term<"Variable"
   equals(other: unknown): other is VariableLike<Value>;
 }
 
-export class VariableImplementation<Value extends string = string> extends TermImplementation<"Variable", Value> implements Variable<Value> {
+export class Variable<Value extends string = string> extends Term<"Variable", Value> implements Variable<Value> {
 
   constructor(value: Value) {
     super("Variable", value);

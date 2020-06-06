@@ -1,19 +1,17 @@
-import { isNamedNode, isNamedNodeLike, NamedNode, NamedNodeImplementation, NamedNodeLike } from "./named-node";
-import { isBlankNodeLike, BlankNode, BlankNodeLike, BlankNodeImplementation, isBlankNode } from "./blank-node";
-import { isLiteral, isLiteralLike, Literal, LiteralImplementation, LiteralLike } from "./literal";
-import { isVariable, isVariableLike, Variable, VariableImplementation, VariableLike } from "./variable";
+import { isNamedNode, isNamedNodeLike, NamedNode, NamedNodeLike } from "./named-node";
+import { isBlankNodeLike, BlankNode, BlankNodeLike, isBlankNode } from "./blank-node";
+import { isLiteral, isLiteralLike, Literal, LiteralLike } from "./literal";
+import { isVariable, isVariableLike, Variable, VariableLike } from "./variable";
 import {
   isDefaultGraphLike,
   DefaultGraph,
   DefaultGraphLike,
-  DefaultGraphImplementation,
   isDefaultGraph
 } from "./default-graph";
 import {
   isQuadLike,
   Quad,
   QuadGraphLike,
-  QuadImplementation,
   QuadObjectLike,
   QuadPredicateLike,
   QuadSubjectLike
@@ -47,21 +45,21 @@ export class DataFactory {
   }
 
   namedNode<Value extends string>(value: Value): NamedNode<Value> {
-    return new NamedNodeImplementation(value);
+    return new NamedNode(value);
   }
 
   blankNode = (value?: string): BlankNode => {
-    return new BlankNodeImplementation((value || `blank-${new UUID(4).format()}`).replace(/^_:/, ""));
+    return new BlankNode((value || `blank-${new UUID(4).format()}`).replace(/^_:/, ""));
   };
 
   literal = (value: string, languageOrDataType?: string | NamedNodeLike): Literal => {
     const getLiteral = (value: string, languageOrDataType?: string | NamedNodeLike): Literal => {
       if (typeof languageOrDataType === "string") {
-        return new LiteralImplementation(value, languageOrDataType, this.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"));
+        return new Literal(value, languageOrDataType, this.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"));
       } else if (isNamedNodeLike(languageOrDataType)) {
-        return new LiteralImplementation(value, "", this.fromTerm(languageOrDataType));
+        return new Literal(value, "", this.fromTerm(languageOrDataType));
       } else {
-        return new LiteralImplementation(value, "", this.namedNode("http://www.w3.org/2001/XMLSchema#string"));
+        return new Literal(value, "", this.namedNode("http://www.w3.org/2001/XMLSchema#string"));
       }
     };
     // "value"@en
@@ -89,15 +87,15 @@ export class DataFactory {
   };
 
   variable = (value: string): Variable => {
-    return new VariableImplementation(value.replace(/^\?/, ""));
+    return new Variable(value.replace(/^\?/, ""));
   };
 
   defaultGraph = (): DefaultGraph => {
-    return new DefaultGraphImplementation();
+    return new DefaultGraph();
   };
 
   quad = (subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad => {
-    return new QuadImplementation(
+    return new Quad(
       this.fromTerm(subject),
       this.fromTerm(predicate),
       this.fromTerm(object),
@@ -120,7 +118,13 @@ export class DataFactory {
     } else if (isLiteral(term)) {
       return (term as unknown) as MappedTermLike<T>;
     } else if (isLiteralLike(term)) {
-      return this.literal(term.value, isNamedNodeLike(term.datatype) ? term.datatype : term.language) as MappedTermLike<T>;
+      // Use direct map as the way `literal` is defined it may drop language or datatype
+      // This allows _both_ language and datatype
+      return new Literal(
+        term.value,
+        term.language,
+        this.namedNode(term.datatype.value)
+      ) as MappedTermLike<T>;
     } else if (isVariable(term)) {
       return (term as unknown) as MappedTermLike<T>;
     } else if (isVariableLike(term)) {
