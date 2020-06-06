@@ -74,23 +74,23 @@ export function isQuadGraphLike(value?: unknown): value is QuadGraphLike {
   return isDefaultGraphLike(value) || isNamedNodeLike(value) || isBlankNodeLike(value) || isVariableLike(value);
 }
 
-export interface Quad {
-  readonly subject: QuadSubject;
-  readonly predicate: QuadPredicate;
-  readonly object: QuadObject;
-  readonly graph: QuadGraph;
+export interface Quad<S extends QuadSubject = QuadSubject, P extends QuadPredicate = QuadPredicate, O extends QuadObject = QuadObject, G extends QuadGraph = QuadGraph> {
+  readonly subject: S;
+  readonly predicate: P;
+  readonly object: O;
+  readonly graph: G;
 
   equals(other?: unknown): other is QuadLike;
 }
 
-export class QuadImplementation implements Quad {
+export class QuadImplementation<S extends QuadSubject = QuadSubject, P extends QuadPredicate = QuadPredicate, O extends QuadObject = QuadObject, G extends QuadGraph = QuadGraph> implements Quad<S, P, O, G> {
 
-  readonly subject: QuadSubject;
-  readonly predicate: QuadPredicate;
-  readonly object: QuadObject;
-  readonly graph: QuadGraph;
+  readonly subject: S;
+  readonly predicate: P;
+  readonly object: O;
+  readonly graph: G;
 
-  constructor(subject: QuadSubject, predicate: QuadPredicate, object: QuadObject, graph: QuadGraph) {
+  constructor(subject: S, predicate: P, object: O, graph: G) {
     this.subject = subject;
     this.predicate = predicate;
     this.object = object;

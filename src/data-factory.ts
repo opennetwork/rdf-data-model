@@ -1,8 +1,14 @@
-import { isNamedNodeLike, NamedNode, NamedNodeImplementation, NamedNodeLike } from "./named-node";
-import { isBlankNodeLike, BlankNode, BlankNodeLike, BlankNodeImplementation } from "./blank-node";
-import { isLiteralLike, Literal, LiteralImplementation, LiteralLike } from "./literal";
-import { isVariableLike, Variable, VariableImplementation, VariableLike } from "./variable";
-import { isDefaultGraphLike, DefaultGraph, DefaultGraphLike, DefaultGraphImplementation } from "./default-graph";
+import { isNamedNode, isNamedNodeLike, NamedNode, NamedNodeImplementation, NamedNodeLike } from "./named-node";
+import { isBlankNodeLike, BlankNode, BlankNodeLike, BlankNodeImplementation, isBlankNode } from "./blank-node";
+import { isLiteral, isLiteralLike, Literal, LiteralImplementation, LiteralLike } from "./literal";
+import { isVariable, isVariableLike, Variable, VariableImplementation, VariableLike } from "./variable";
+import {
+  isDefaultGraphLike,
+  DefaultGraph,
+  DefaultGraphLike,
+  DefaultGraphImplementation,
+  isDefaultGraph
+} from "./default-graph";
 import {
   isQuadLike,
   Quad,
@@ -103,14 +109,24 @@ export class DataFactory {
     if (!isTermLike(term)) {
       throw new Error("Provided value is not a Term");
     }
-    if (isNamedNodeLike(term)) {
+    if (isNamedNode(term)) {
+      return (term as unknown) as MappedTermLike<T>;
+    } else if (isNamedNodeLike(term)) {
       return this.namedNode(term.value) as MappedTermLike<T>;
+    } else if (isBlankNode(term)) {
+      return (term as unknown) as MappedTermLike<T>;
     } else if (isBlankNodeLike(term)) {
       return this.blankNode(term.value) as MappedTermLike<T>;
+    } else if (isLiteral(term)) {
+      return (term as unknown) as MappedTermLike<T>;
     } else if (isLiteralLike(term)) {
       return this.literal(term.value, isNamedNodeLike(term.datatype) ? term.datatype : term.language) as MappedTermLike<T>;
+    } else if (isVariable(term)) {
+      return (term as unknown) as MappedTermLike<T>;
     } else if (isVariableLike(term)) {
       return this.variable(term.value) as MappedTermLike<T>;
+    } else if (isDefaultGraph(term)) {
+      return (term as unknown) as MappedTermLike<T>;
     } else if (isDefaultGraphLike(term)) {
       return this.defaultGraph() as MappedTermLike<T>;
     }
