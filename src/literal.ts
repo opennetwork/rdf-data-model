@@ -41,16 +41,16 @@ export function isLiteral<Value extends string = string>(given: unknown, value?:
   );
 }
 
-export interface Literal<Value extends string = string> extends Term<"Literal", Value> {
-  readonly language: string;
-  readonly datatype: NamedNode;
+export interface Literal<Value extends string = string, Language extends string = string, DataType extends NamedNode = NamedNode> extends Term<"Literal", Value> {
+  readonly language: Language;
+  readonly datatype: DataType;
 
   equals(other: unknown): other is LiteralLike<Value>;
 }
 
-export class Literal<Value extends string = string> extends Term<"Literal", Value> implements Literal<Value> {
+export class Literal<Value extends string = string, Language extends string = string, DataType extends NamedNode = NamedNode> extends Term<"Literal", Value> implements Literal<Value, Language, DataType> {
 
-  constructor(value: Value, readonly language: string = "", readonly datatype: NamedNode) {
+  constructor(value: Value, readonly language: Language, readonly datatype: DataType) {
     super("Literal", value);
   }
 
