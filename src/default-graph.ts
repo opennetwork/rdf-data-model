@@ -9,6 +9,7 @@ export function isDefaultGraph(given: unknown): given is DefaultGraph {
 }
 
 export interface DefaultGraph extends Term<"DefaultGraph", ""> {
+  equals(other: DefaultGraph): other is DefaultGraph;
   equals(other: unknown): other is DefaultGraphLike;
 }
 
@@ -24,6 +25,8 @@ export class DefaultGraph extends Term<"DefaultGraph", ""> implements DefaultGra
     return DefaultGraph.defaultGraph;
   }
 
+  equals(other: DefaultGraph): other is DefaultGraph;
+  equals(other: unknown): other is DefaultGraphLike;
   equals(other: unknown): other is DefaultGraphLike {
     return isDefaultGraphLike(other);
   }
