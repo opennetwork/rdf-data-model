@@ -80,15 +80,18 @@ export interface Quad<S extends QuadSubject = QuadSubject, P extends QuadPredica
   readonly object: O;
   readonly graph: G;
 
+  equals(other?: Quad): other is Quad<S, P, O, G>;
   equals(other?: unknown): other is QuadLike;
 }
 
 export class Quad<S extends QuadSubject = QuadSubject, P extends QuadPredicate = QuadPredicate, O extends QuadObject = QuadObject, G extends QuadGraph = QuadGraph> implements Quad<S, P, O, G> {
 
   constructor(readonly subject: S, readonly predicate: P, readonly object: O, readonly graph: G) {
-    
+
   }
 
+  equals(other?: Quad): other is Quad<S, P, O, G>;
+  equals(other?: unknown): other is QuadLike;
   equals(other: unknown): other is QuadLike {
     return !!(
       isQuadLike(other) &&

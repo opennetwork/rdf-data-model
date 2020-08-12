@@ -45,6 +45,7 @@ export interface Literal<Value extends string = string, Language extends string 
   readonly language: Language;
   readonly datatype: DataType;
 
+  equals(other: Literal): other is Literal<Value>;
   equals(other: unknown): other is LiteralLike<Value>;
 }
 
@@ -54,6 +55,8 @@ export class Literal<Value extends string = string, Language extends string = st
     super("Literal", value);
   }
 
+  equals(other: Literal): other is Literal<Value>;
+  equals(other: unknown): other is LiteralLike<Value>;
   equals(other: unknown): other is LiteralLike<Value> {
     return (
       isLiteralLike(other, this.value) &&

@@ -32,6 +32,7 @@ export interface Term<TermType extends string = string, Value extends string = s
   readonly termType: TermType;
   readonly value: Value;
 
+  equals(other: Term): other is Term<TermType, Value>;
   equals(other: unknown): other is TermLike<TermType, Value>;
 }
 
@@ -40,6 +41,8 @@ export class Term<TermType extends string = string, Value extends string = strin
   protected constructor(readonly termType: TermType, readonly value: Value) {
   }
 
+  equals(other: Term): other is Term<TermType, Value>;
+  equals(other: unknown): other is TermLike<TermType, Value>;
   // This is here as a default, if the class has more than these
   // two properties, it MUST follow its own path equality
   equals(other: unknown): other is TermLike<TermType, Value> {

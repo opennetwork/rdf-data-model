@@ -9,6 +9,7 @@ export function isNamedNode<Value extends string = string>(given: unknown, value
 }
 
 export interface NamedNode<Value extends string = string> extends Term<"NamedNode", Value> {
+  equals(other: NamedNode): other is NamedNode<Value>;
   equals(other: unknown): other is NamedNodeLike<Value>;
 }
 
@@ -20,6 +21,8 @@ export class NamedNode<Value extends string = string> extends Term<"NamedNode", 
     super("NamedNode", value);
   }
 
+  equals(other: NamedNode): other is NamedNode<Value>;
+  equals(other: unknown): other is NamedNodeLike<Value>;
   equals(other: unknown): other is NamedNodeLike<Value> {
     return isNamedNodeLike(other, this.value);
   }

@@ -9,6 +9,7 @@ export function isVariable<Value extends string = string>(given: unknown, value?
 }
 
 export interface Variable<Value extends string = string> extends Term<"Variable", Value> {
+  equals(other: Variable): other is Variable<Value>;
   equals(other: unknown): other is VariableLike<Value>;
 }
 
@@ -18,6 +19,8 @@ export class Variable<Value extends string = string> extends Term<"Variable", Va
     super("Variable", value);
   }
 
+  equals(other: Variable): other is Variable<Value>;
+  equals(other: unknown): other is VariableLike<Value>;
   equals(other: unknown): other is VariableLike<Value> {
     return isVariableLike(other, this.value);
   }

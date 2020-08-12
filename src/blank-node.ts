@@ -9,6 +9,7 @@ export function isBlankNode<Value extends string = string>(given: unknown, value
 }
 
 export interface BlankNode<Value extends string = string> extends Term<"BlankNode", Value> {
+  equals(other: BlankNode): other is BlankNode<Value>;
   equals(other: unknown): other is BlankNodeLike<Value>;
 }
 
@@ -18,6 +19,8 @@ export class BlankNode<Value extends string = string> extends Term<"BlankNode", 
     super("BlankNode", value);
   }
 
+  equals(other: BlankNode): other is BlankNode<Value>;
+  equals(other: unknown): other is BlankNodeLike<Value>;
   equals(other: unknown): other is BlankNodeLike<Value> {
     return isBlankNodeLike(other, this.value);
   }
