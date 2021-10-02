@@ -4,13 +4,16 @@ import { Variable, isVariable, VariableLike, isVariableLike } from "./variable";
 import { Literal, isLiteral, LiteralLike, isLiteralLike } from "./literal";
 import { DefaultGraph, DefaultGraphLike, isDefaultGraph, isDefaultGraphLike } from "./default-graph";
 import { hasKey } from "./has-key";
+import { Term, TermImplementation, TermLike } from "./term";
 
 export function isQuadLike(given: unknown): given is QuadLike {
   return (
+    hasKey(given, "termType") &&
     hasKey(given, "subject") &&
     hasKey(given, "predicate") &&
     hasKey(given, "object") &&
     hasKey(given, "graph") &&
+    given.termType === "Quad" &&
     isQuadSubjectLike(given.subject) &&
     isQuadPredicateLike(given.predicate) &&
     isQuadObjectLike(given.object) &&
@@ -20,12 +23,13 @@ export function isQuadLike(given: unknown): given is QuadLike {
 
 export function isQuad(given?: unknown): given is Quad {
   function isQuadInstance(given: unknown): given is Partial<Record<keyof Quad, unknown>> {
-    return typeof given === "object";
+    return !!given;
   }
   if (!isQuadInstance(given)) {
     return false;
   }
   return (
+    given.termType === "Quad" &&
     isQuadSubject(given.subject) &&
     isQuadPredicate(given.predicate) &&
     isQuadObject(given.object) &&
@@ -33,17 +37,17 @@ export function isQuad(given?: unknown): given is Quad {
   );
 }
 
-export type QuadSubject = NamedNode | BlankNode | Variable;
+export type QuadSubject = NamedNode | BlankNode | Variable | Quad;
 export type QuadPredicate = NamedNode | Variable;
 export type QuadObject = NamedNode | Literal | BlankNode | Variable;
 export type QuadGraph = DefaultGraph | NamedNode | BlankNode | Variable;
-export type QuadSubjectLike = NamedNodeLike | BlankNodeLike | VariableLike;
+export type QuadSubjectLike = NamedNodeLike | BlankNodeLike | VariableLike | QuadLike;
 export type QuadPredicateLike = NamedNodeLike | VariableLike;
 export type QuadObjectLike = NamedNodeLike | LiteralLike | BlankNodeLike | VariableLike;
 export type QuadGraphLike = DefaultGraphLike | NamedNodeLike | BlankNodeLike | VariableLike;
 
 export function isQuadSubject(value?: unknown): value is QuadSubject {
-  return isNamedNode(value) || isBlankNode(value) || isVariable(value);
+  return isNamedNode(value) || isBlankNode(value) || isVariable(value) || isQuad(value);
 }
 
 export function isQuadPredicate(value?: unknown): value is QuadPredicate {
@@ -59,7 +63,7 @@ export function isQuadGraph(value?: unknown): value is QuadGraph {
 }
 
 export function isQuadSubjectLike(value?: unknown): value is QuadSubjectLike {
-  return isNamedNodeLike(value) || isBlankNodeLike(value) || isVariableLike(value);
+  return isNamedNodeLike(value) || isBlankNodeLike(value) || isVariableLike(value) || isQuadLike(value);
 }
 
 export function isQuadPredicateLike(value?: unknown): value is QuadPredicateLike {
@@ -74,29 +78,34 @@ export function isQuadGraphLike(value?: unknown): value is QuadGraphLike {
   return isDefaultGraphLike(value) || isNamedNodeLike(value) || isBlankNodeLike(value) || isVariableLike(value);
 }
 
-export interface Quad {
+export interface Quad extends Term<"Quad", ""> {
   readonly subject: QuadSubject;
   readonly predicate: QuadPredicate;
   readonly object: QuadObject;
   readonly graph: QuadGraph;
 
+  equals(other: unknown): other is TermLike<"Quad", ""> & QuadLike;
   equals(other?: unknown): other is QuadLike;
 }
 
-export class QuadImplementation implements Quad {
-
+export class QuadImplementation extends TermImplementation<"Quad", ""> implements Quad {
+  readonly termType = "Quad";
+  readonly value = "";
   readonly subject: QuadSubject;
   readonly predicate: QuadPredicate;
   readonly object: QuadObject;
   readonly graph: QuadGraph;
 
   constructor(subject: QuadSubject, predicate: QuadPredicate, object: QuadObject, graph: QuadGraph) {
+    super("Quad", "");
     this.subject = subject;
     this.predicate = predicate;
     this.object = object;
     this.graph = graph;
   }
 
+  equals(other: unknown): other is TermLike<"Quad", ""> & QuadLike;
+  equals(other: unknown): other is QuadLike;
   equals(other: unknown): other is QuadLike {
     return !!(
       isQuadLike(other) &&
@@ -109,6 +118,8 @@ export class QuadImplementation implements Quad {
 
   toJSON() {
     return {
+      termType: this.termType,
+      value: this.value,
       subject: this.subject,
       predicate: this.predicate,
       object: this.object,
@@ -118,9 +129,4 @@ export class QuadImplementation implements Quad {
 
 }
 
-export type QuadLike = {
-  subject: QuadSubjectLike;
-  predicate: QuadPredicateLike;
-  object: QuadObjectLike;
-  graph: QuadGraphLike;
-};
+export type QuadLike = Pick<Quad, "termType" | "subject" | "predicate" | "object" | "graph" | "value">;

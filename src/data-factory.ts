@@ -5,25 +5,26 @@ import { isVariableLike, Variable, VariableImplementation, VariableLike } from "
 import { isDefaultGraphLike, DefaultGraph, DefaultGraphLike, DefaultGraphImplementation } from "./default-graph";
 import {
   isQuadLike,
-  Quad,
+  Quad, QuadGraph,
   QuadGraphLike,
   QuadImplementation,
-  QuadObjectLike,
-  QuadPredicateLike,
+  QuadLike, QuadObject,
+  QuadObjectLike, QuadPredicate,
+  QuadPredicateLike, QuadSubject,
   QuadSubjectLike
 } from "./quad";
 import { isTermLike } from "./term";
 import UUID from "pure-uuid";
 
-export type MappedTermLike<T = unknown> =
-  T extends NamedNodeLike ? NamedNode :
-  T extends BlankNodeLike ? BlankNode :
-  T extends LiteralLike ? Literal :
-  T extends VariableLike ? Variable :
-  T extends DefaultGraphLike ? DefaultGraph :
-  NamedNode | BlankNode | Literal | Variable | DefaultGraph;
+export interface DataFactory {
+
+}
 
 export class DataFactory {
+
+  constructor() {
+    this.fromTerm = this.fromTerm.bind(this);
+  }
 
   namedNode = (value: string): NamedNode => {
     return new NamedNodeImplementation(value);
@@ -84,24 +85,37 @@ export class DataFactory {
     );
   };
 
-  fromTerm = <T = unknown>(term: T): MappedTermLike<T> => {
+  fromTerm<T extends NamedNodeLike>(term: T): NamedNode;
+  fromTerm<T extends BlankNodeLike>(term: T): BlankNode;
+  fromTerm<T extends LiteralLike>(term: T): Literal;
+  fromTerm<T extends VariableLike>(term: T): Variable;
+  fromTerm<T extends DefaultGraphLike>(term: T): DefaultGraph;
+  fromTerm<T extends QuadLike>(term: T): Quad;
+  fromTerm<T extends QuadPredicateLike>(term: T): QuadPredicate;
+  fromTerm<T extends QuadSubjectLike>(term: T): QuadSubject;
+  fromTerm<T extends QuadObjectLike>(term: T): QuadObject;
+  fromTerm<T extends QuadGraphLike>(term: T): QuadGraph;
+  fromTerm(term: unknown): NamedNode | BlankNode | Literal | Variable | DefaultGraph | Quad;
+  fromTerm(term: unknown): NamedNode | BlankNode | Literal | Variable | DefaultGraph | Quad {
     if (!isTermLike(term)) {
       throw new Error("Provided value is not a Term");
     }
     if (isNamedNodeLike(term)) {
-      return this.namedNode(term.value) as MappedTermLike<T>;
+      return this.namedNode(term.value);
     } else if (isBlankNodeLike(term)) {
-      return this.blankNode(term.value) as MappedTermLike<T>;
+      return this.blankNode(term.value);
     } else if (isLiteralLike(term)) {
-      return this.literal(term.value, isNamedNodeLike(term.datatype) ? term.datatype : term.language) as MappedTermLike<T>;
+      return this.literal(term.value, isNamedNodeLike(term.datatype) ? term.datatype : term.language);
     } else if (isVariableLike(term)) {
-      return this.variable(term.value) as MappedTermLike<T>;
+      return this.variable(term.value);
     } else if (isDefaultGraphLike(term)) {
-      return this.defaultGraph() as MappedTermLike<T>;
+      return this.defaultGraph();
+    } else if (isQuadLike(term)) {
+      return this.quad(term.subject, term.predicate, term.object, term.graph);
     }
     // Unknown
-    throw new Error("Invalid term type, expected one of NamedNode | BlankNode | Literal | Variable | DefaultGraph");
-  };
+    throw new Error("Invalid term type, expected one of NamedNode | BlankNode | Literal | Variable | DefaultGraph | Quad");
+  }
 
   fromQuad = (quad: unknown): Quad => {
     if (!isQuadLike(quad)) {
