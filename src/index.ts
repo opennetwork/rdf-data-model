@@ -15,7 +15,15 @@ export {
   isQuadLike,
   isQuadSubjectLike,
   Quad,
-  QuadLike
+  QuadLike,
+  QuadSubjectLike,
+  QuadObject,
+  QuadGraph,
+  QuadGraphLike,
+  QuadObjectLike,
+  QuadPredicate,
+  QuadPredicateLike,
+  QuadSubject
 } from "./quad";
 export { isTerm, isTermLike, Term, TermLike } from "./term";
 export { isVariable, isVariableLike, Variable, VariableLike } from "./variable";

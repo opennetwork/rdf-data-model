@@ -1,4 +1,4 @@
-import { isTerm, isTermLike, Term, TermImplementation } from "./term";
+import { isTerm, isTermLike, Term } from "./term";
 import { isNamedNode, NamedNode } from "./named-node";
 import { NamedNodeLike, isNamedNodeLike } from "./named-node";
 import { hasKey } from "./has-key";
@@ -41,24 +41,22 @@ export function isLiteral<Value extends string = string>(given: unknown, value?:
   );
 }
 
-export interface Literal<Value extends string = string> extends Term<"Literal", Value> {
-  readonly language: string;
-  readonly datatype?: NamedNode;
+export interface Literal<Value extends string = string, Language extends string = string, DataType extends NamedNode = NamedNode> extends Term<"Literal", Value> {
+  readonly language: Language;
+  readonly datatype: DataType;
 
+  equals(other: Literal): other is Literal<Value>;
   equals(other: unknown): other is LiteralLike<Value>;
 }
 
-export class LiteralImplementation<Value extends string = string> extends TermImplementation<"Literal", Value> implements Literal<Value> {
+export class Literal<Value extends string = string, Language extends string = string, DataType extends NamedNode = NamedNode> extends Term<"Literal", Value> implements Literal<Value, Language, DataType> {
 
-  readonly language: string;
-  readonly datatype?: NamedNode;
-
-  constructor(value: Value, language: string, datatype: NamedNode) {
+  constructor(value: Value, readonly language: Language, readonly datatype: DataType) {
     super("Literal", value);
-    this.language = language || "";
-    this.datatype = datatype;
   }
 
+  equals(other: Literal): other is Literal<Value>;
+  equals(other: unknown): other is LiteralLike<Value>;
   equals(other: unknown): other is LiteralLike<Value> {
     return (
       isLiteralLike(other, this.value) &&

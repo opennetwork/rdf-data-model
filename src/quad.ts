@@ -4,7 +4,7 @@ import { Variable, isVariable, VariableLike, isVariableLike } from "./variable";
 import { Literal, isLiteral, LiteralLike, isLiteralLike } from "./literal";
 import { DefaultGraph, DefaultGraphLike, isDefaultGraph, isDefaultGraphLike } from "./default-graph";
 import { hasKey } from "./has-key";
-import { Term, TermImplementation, TermLike } from "./term";
+import { Term, TermLike } from "./term";
 
 export function isQuadLike(given: unknown): given is QuadLike {
   return (
@@ -78,32 +78,27 @@ export function isQuadGraphLike(value?: unknown): value is QuadGraphLike {
   return isDefaultGraphLike(value) || isNamedNodeLike(value) || isBlankNodeLike(value) || isVariableLike(value);
 }
 
-export interface Quad extends Term<"Quad", ""> {
-  readonly subject: QuadSubject;
-  readonly predicate: QuadPredicate;
-  readonly object: QuadObject;
-  readonly graph: QuadGraph;
+export interface Quad<S extends QuadSubject = QuadSubject, P extends QuadPredicate = QuadPredicate, O extends QuadObject = QuadObject, G extends QuadGraph = QuadGraph> extends Term<"Quad", ""> {
+  readonly subject: S;
+  readonly predicate: P;
+  readonly object: O;
+  readonly graph: G;
 
+  equals(other: Quad): other is Quad<S, P, O, G>;
   equals(other: unknown): other is TermLike<"Quad", ""> & QuadLike;
   equals(other?: unknown): other is QuadLike;
 }
 
-export class QuadImplementation extends TermImplementation<"Quad", ""> implements Quad {
+export class Quad<S extends QuadSubject = QuadSubject, P extends QuadPredicate = QuadPredicate, O extends QuadObject = QuadObject, G extends QuadGraph = QuadGraph> extends Term<"Quad", ""> implements Quad<S, P, O, G> {
+
   readonly termType = "Quad";
   readonly value = "";
-  readonly subject: QuadSubject;
-  readonly predicate: QuadPredicate;
-  readonly object: QuadObject;
-  readonly graph: QuadGraph;
 
-  constructor(subject: QuadSubject, predicate: QuadPredicate, object: QuadObject, graph: QuadGraph) {
+  constructor(readonly subject: S, readonly predicate: P, readonly object: O, readonly graph: G) {
     super("Quad", "");
-    this.subject = subject;
-    this.predicate = predicate;
-    this.object = object;
-    this.graph = graph;
   }
 
+  equals(other: Quad): other is Quad<S, P, O, G>;
   equals(other: unknown): other is TermLike<"Quad", ""> & QuadLike;
   equals(other: unknown): other is QuadLike;
   equals(other: unknown): other is QuadLike {

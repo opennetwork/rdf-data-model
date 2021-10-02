@@ -1,4 +1,4 @@
-import { isTerm, isTermLike, Term, TermImplementation } from "./term";
+import { isTerm, isTermLike, Term } from "./term";
 
 export function isDefaultGraphLike(given: unknown): given is DefaultGraphLike {
   return isTermLike(given, "DefaultGraph", "");
@@ -9,21 +9,24 @@ export function isDefaultGraph(given: unknown): given is DefaultGraph {
 }
 
 export interface DefaultGraph extends Term<"DefaultGraph", ""> {
+  equals(other: DefaultGraph): other is DefaultGraph;
   equals(other: unknown): other is DefaultGraphLike;
 }
 
-export class DefaultGraphImplementation extends TermImplementation<"DefaultGraph", ""> implements DefaultGraph {
-  private static defaultGraph?: DefaultGraphImplementation;
+export class DefaultGraph extends Term<"DefaultGraph", ""> implements DefaultGraph {
+  private static defaultGraph?: DefaultGraph;
 
   constructor() {
     super("DefaultGraph", "");
     // Singleton constructor
-    if (!DefaultGraphImplementation.defaultGraph) {
-      DefaultGraphImplementation.defaultGraph = this;
+    if (!DefaultGraph.defaultGraph) {
+      DefaultGraph.defaultGraph = this;
     }
-    return DefaultGraphImplementation.defaultGraph;
+    return DefaultGraph.defaultGraph;
   }
 
+  equals(other: DefaultGraph): other is DefaultGraph;
+  equals(other: unknown): other is DefaultGraphLike;
   equals(other: unknown): other is DefaultGraphLike {
     return isDefaultGraphLike(other);
   }
