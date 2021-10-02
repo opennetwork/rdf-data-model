@@ -1,12 +1,25 @@
-import { isNamedNode, isNamedNodeLike, NamedNode, NamedNodeLike } from "./named-node";
-import { isBlankNodeLike, BlankNode, BlankNodeLike, isBlankNode } from "./blank-node";
-import { isLiteral, isLiteralLike, Literal, LiteralLike } from "./literal";
-import { isVariable, isVariableLike, Variable, VariableLike } from "./variable";
+import {
+  assertNamedNodeLike,
+  isNamedNode,
+  isNamedNodeLike,
+  NamedNode,
+  NamedNodeLike
+} from "./named-node";
+import {
+  isBlankNodeLike,
+  BlankNode,
+  BlankNodeLike,
+  isBlankNode,
+  assertBlankNodeLike
+} from "./blank-node";
+import { assertLiteralLike, isLiteral, isLiteralLike, Literal, LiteralLike } from "./literal";
+import { assertVariableLike, isVariable, isVariableLike, Variable, VariableLike } from "./variable";
 import {
   isDefaultGraphLike,
   DefaultGraph,
   DefaultGraphLike,
-  isDefaultGraph
+  isDefaultGraph,
+  assertDefaultGraphLike
 } from "./default-graph";
 import {
   isQuadLike,
@@ -19,7 +32,8 @@ import {
   QuadSubject,
   QuadObjectLike,
   QuadPredicateLike,
-  QuadSubjectLike
+  QuadSubjectLike,
+  assertQuadLike
 } from "./quad";
 import { isTermLike } from "./term";
 import UUID from "pure-uuid";
@@ -120,7 +134,7 @@ export class DataFactory {
       this.fromTerm(subject),
       this.fromTerm(predicate),
       this.fromTerm(object),
-      this.fromTerm(graph)
+      this.fromTerm(graph ?? this.defaultGraph())
     );
   }
 
@@ -184,3 +198,88 @@ export class DataFactory {
 }
 
 export const DefaultDataFactory = new DataFactory();
+
+export function isDataFactory(factory: unknown): factory is DataFactory {
+  function isDataFactoryIshMaybe(factory: unknown): factory is Partial<DataFactory> {
+    return !!factory;
+  }
+  function isDataFactoryIsh(factory: unknown): factory is DataFactory {
+    if (!isDataFactoryIshMaybe(factory)) {
+      return false;
+    }
+    return (
+      typeof factory.namedNode === "function" &&
+      typeof factory.blankNode === "function" &&
+      typeof factory.literal === "function" &&
+      typeof factory.variable === "function" &&
+      typeof factory.defaultGraph === "function" &&
+      typeof factory.quad === "function" &&
+      typeof factory.fromTerm === "function" &&
+      typeof factory.fromQuad === "function"
+    );
+  }
+  if (!isDataFactoryIsh(factory)) {
+    throw new Error("Factory does not have all required methods");
+  }
+  try {
+    assertDataFactory(factory);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function assertDataFactory(factory: DataFactory = DefaultDataFactory): asserts factory is DataFactory {
+  const namedNode = factory.namedNode("");
+  assertNamedNodeLike(namedNode, "");
+  const blankNode = factory.blankNode();
+  assertBlankNodeLike(blankNode);
+  const blankNodeValue = factory.blankNode("some value");
+  assertBlankNodeLike(blankNodeValue, "some value");
+  const literal = factory.literal("");
+  assertLiteralLike(literal, "");
+  const literalLanguage = factory.literal("", "en");
+  assertLiteralLike(literalLanguage, "", "en");
+  const literalDataType = factory.literal("", {
+    value: "number maybe?",
+    termType: "NamedNode"
+  });
+  assertLiteralLike(literalDataType, "", {
+    value: "number maybe?",
+    termType: "NamedNode"
+  });
+  const variable = factory.variable("variable");
+  assertVariableLike(variable, "variable");
+  const defaultGraph = factory.defaultGraph();
+  assertDefaultGraphLike(defaultGraph);
+  const quad = factory.quad(
+    namedNode,
+    namedNode,
+    blankNode,
+    defaultGraph
+  );
+  assertQuadLike(quad);
+  const quadDefaultGraph = factory.quad(
+    namedNode,
+    namedNode,
+    blankNode
+  );
+  assertQuadLike(quadDefaultGraph, namedNode, namedNode, blankNode, defaultGraph);
+
+  ok(factory.fromTerm(namedNode).equals(namedNode));
+  ok(factory.fromTerm(blankNode).equals(blankNode));
+  ok(factory.fromTerm(blankNodeValue).equals(blankNodeValue));
+  ok(factory.fromTerm(defaultGraph).equals(defaultGraph));
+  ok(factory.fromTerm(variable).equals(variable));
+  ok(factory.fromTerm(literal).equals(literal));
+  ok(factory.fromTerm(literalLanguage).equals(literalLanguage));
+  ok(factory.fromTerm(literalDataType).equals(literalDataType));
+  ok(factory.fromQuad(quad).equals(quad));
+  ok(factory.fromQuad(quadDefaultGraph).equals(quadDefaultGraph));
+
+  function ok(value: unknown, message?: string): asserts value {
+    if (!value) {
+      throw new Error(message ?? "Expected truthy");
+    }
+  }
+}

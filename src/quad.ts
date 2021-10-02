@@ -5,6 +5,7 @@ import { Literal, isLiteral, LiteralLike, isLiteralLike } from "./literal";
 import { DefaultGraph, DefaultGraphLike, isDefaultGraph, isDefaultGraphLike } from "./default-graph";
 import { hasKey } from "./has-key";
 import { Term, TermLike } from "./term";
+import { DefaultDataFactory } from "./data-factory";
 
 export function isQuadLike(given: unknown): given is QuadLike {
   return (
@@ -35,6 +36,57 @@ export function isQuad(given?: unknown): given is Quad {
     isQuadObject(given.object) &&
     isQuadGraph(given.graph)
   );
+}
+
+export function assertQuadMatch(given: QuadLike, subject?: QuadSubjectLike, predicate?: QuadPredicateLike, object?: QuadObjectLike, graph?: QuadGraphLike): asserts given is QuadLike {
+  if (subject && !DefaultDataFactory.fromTerm(subject).equals(given.subject)) {
+    const error: Error & { value?: unknown, given?: unknown, subject?: unknown } = new Error("Expected subject to match");
+    error.given = given;
+    error.subject = subject;
+    throw error;
+  }
+  if (predicate && !DefaultDataFactory.fromTerm(predicate).equals(given.predicate)) {
+    const error: Error & { value?: unknown, given?: unknown, subject?: unknown, predicate?: unknown } = new Error("Expected predicate to match");
+    error.given = given;
+    error.subject = subject;
+    error.predicate = predicate;
+    throw error;
+  }
+  if (object && !DefaultDataFactory.fromTerm(object).equals(given.object)) {
+    const error: Error & { value?: unknown, given?: unknown, subject?: unknown, predicate?: unknown, object?: unknown } = new Error("Expected object to match");
+    error.given = given;
+    error.subject = subject;
+    error.predicate = predicate;
+    error.object = object;
+    throw error;
+  }
+  if (graph && !DefaultDataFactory.fromTerm(graph).equals(given.graph)) {
+    const error: Error & { value?: unknown, given?: unknown, subject?: unknown, predicate?: unknown, object?: unknown, graph?: unknown } = new Error("Expected graph to match");
+    error.given = given;
+    error.subject = subject;
+    error.predicate = predicate;
+    error.object = object;
+    error.graph = graph;
+    throw error;
+  }
+}
+
+export function assertQuadLike(given: unknown, subject?: QuadSubjectLike, predicate?: QuadPredicateLike, object?: QuadObjectLike, graph?: QuadGraphLike): asserts given is QuadLike {
+  if (!isQuadLike(given)) {
+    const error: Error & { value?: unknown, given?: unknown } = new Error("Expected Quad");
+    error.given = given;
+    throw error;
+  }
+  assertQuadMatch(given, subject, predicate, object, graph);
+}
+
+export function assertQuad(given: unknown, subject?: QuadSubjectLike, predicate?: QuadPredicateLike, object?: QuadObjectLike, graph?: QuadGraphLike): asserts given is Quad {
+  if (!isQuad(given)) {
+    const error: Error & { value?: unknown, given?: unknown } = new Error("Expected Quad");
+    error.given = given;
+    throw error;
+  }
+  assertQuadMatch(given, subject, predicate, object, graph);
 }
 
 export type QuadSubject = NamedNode | BlankNode | Variable | Quad;

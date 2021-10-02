@@ -8,6 +8,22 @@ export function isDefaultGraph(given: unknown): given is DefaultGraph {
   return isTerm(given, "DefaultGraph", "");
 }
 
+export function assertDefaultGraphLike(given: unknown): asserts given is DefaultGraphLike {
+  if (!isDefaultGraphLike(given)) {
+    const error: Error & { value?: unknown, given?: unknown } = new Error("Expected DefaultGraph");
+    error.given = given;
+    throw error;
+  }
+}
+
+export function assertDefaultGraph(given: unknown): asserts given is DefaultGraph {
+  if (!isDefaultGraph(given)) {
+    const error: Error & { value?: unknown, given?: unknown } = new Error("Expected DefaultGraph");
+    error.given = given;
+    throw error;
+  }
+}
+
 export interface DefaultGraph extends Term<"DefaultGraph", ""> {
   equals(other: DefaultGraph): other is DefaultGraph;
   equals(other: unknown): other is DefaultGraphLike;

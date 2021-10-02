@@ -28,6 +28,26 @@ export function isTerm<TermType extends string = string, Value extends string = 
   return hasEquals(given);
 }
 
+export function assertTermLike<TermType extends string = string, Value extends string = string>(given: unknown, termType?: TermType, value?: Value): asserts given is TermLike<TermType, Value> {
+  if (!isTermLike(given, termType, value)) {
+    const error: Error & { termType?: unknown, value?: unknown, given?: unknown } = new Error("Expected Term");
+    error.termType = termType;
+    error.value = value;
+    error.given = given;
+    throw error;
+  }
+}
+
+export function assertTerm<TermType extends string = string, Value extends string = string>(given: unknown, termType?: TermType, value?: Value): asserts given is Term<TermType, Value> {
+  if (!isTerm(given, termType, value)) {
+    const error: Error & { termType?: unknown, value?: unknown, given?: unknown } = new Error("Expected Term");
+    error.termType = termType;
+    error.value = value;
+    error.given = given;
+    throw error;
+  }
+}
+
 export interface Term<TermType extends string = string, Value extends string = string> {
   readonly termType: TermType;
   readonly value: Value;

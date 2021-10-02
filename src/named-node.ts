@@ -4,8 +4,26 @@ export function isNamedNodeLike<Value extends string = string>(given: unknown, v
   return isTermLike(given, "NamedNode", value);
 }
 
-export function isNamedNode<Value extends string = string>(given: unknown, value?: Value): given is NamedNode {
+export function isNamedNode<Value extends string = string>(given: unknown, value?: Value): given is NamedNode<Value> {
   return isTerm(given, "NamedNode", value);
+}
+
+export function assertNamedNodeLike<Value extends string = string>(given: unknown, value?: Value): asserts given is NamedNodeLike<Value> {
+  if (!isNamedNodeLike(given, value)) {
+    const error: Error & { value?: unknown, given?: unknown } = new Error("Expected NamedNode");
+    error.value = value;
+    error.given = given;
+    throw error;
+  }
+}
+
+export function assertNamedNode<Value extends string = string>(given: unknown, value?: Value): asserts given is NamedNode<Value> {
+  if (!isNamedNode(given, value)) {
+    const error: Error & { value?: unknown, given?: unknown } = new Error("Expected NamedNode");
+    error.value = value;
+    error.given = given;
+    throw error;
+  }
 }
 
 export interface NamedNode<Value extends string = string> extends Term<"NamedNode", Value> {

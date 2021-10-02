@@ -4,8 +4,26 @@ export function isBlankNodeLike<Value extends string = string>(given: unknown, v
   return isTermLike(given, "BlankNode", value);
 }
 
-export function isBlankNode<Value extends string = string>(given: unknown, value?: Value): given is BlankNode {
+export function isBlankNode<Value extends string = string>(given: unknown, value?: Value): given is BlankNode<Value> {
   return isTerm(given, "BlankNode", value);
+}
+
+export function assertBlankNodeLike<Value extends string = string>(given: unknown, value?: Value): asserts given is BlankNodeLike<Value> {
+  if (!isBlankNodeLike(given, value)) {
+    const error: Error & { value?: unknown, given?: unknown } = new Error("Expected BlankNode");
+    error.value = value;
+    error.given = given;
+    throw error;
+  }
+}
+
+export function assertBlankNode<Value extends string = string>(given: unknown, value?: Value): asserts given is BlankNode<Value> {
+  if (!isBlankNode(given, value)) {
+    const error: Error & { value?: unknown, given?: unknown } = new Error("Expected BlankNode");
+    error.value = value;
+    error.given = given;
+    throw error;
+  }
 }
 
 export interface BlankNode<Value extends string = string> extends Term<"BlankNode", Value> {
