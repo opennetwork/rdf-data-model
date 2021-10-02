@@ -28,9 +28,13 @@ import { isQuad } from "./quad";
 export interface DataFactory {
   namedNode<Value extends string>(value: Value): NamedNode<Value>;
   blankNode(value?: string): BlankNode;
+  literal<V extends string, L extends string>(value: V, language: L): Literal<V, L>;
+  literal<V extends string, N extends NamedNode>(value: V, dataType: N): Literal<V, "", N>;
+  literal<V extends string>(value: V, languageOrDataType?: string | NamedNodeLike): Literal<V>;
   literal(value: string, languageOrDataType?: string | NamedNodeLike): Literal;
   variable(value: string): Variable;
   defaultGraph(): DefaultGraph;
+  quad(subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike): Quad<QuadSubject, QuadPredicate, QuadObject, DefaultGraph>;
   quad(subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad;
   fromTerm<T extends NamedNodeLike>(term: T): NamedNode;
   fromTerm<T extends BlankNodeLike>(term: T): BlankNode;
@@ -51,6 +55,8 @@ export class DataFactory {
   constructor() {
     this.fromTerm = this.fromTerm.bind(this);
     this.namedNode = this.namedNode.bind(this);
+    this.quad = this.quad.bind(this);
+    this.literal = this.literal.bind(this);
   }
 
   namedNode<Value extends string>(value: Value): NamedNode<Value> {
@@ -61,7 +67,11 @@ export class DataFactory {
     return new BlankNode((value || `blank-${new UUID(4).format()}`).replace(/^_:/, ""));
   };
 
-  literal = (value: string, languageOrDataType?: string | NamedNodeLike): Literal => {
+  literal<V extends string, L extends string>(value: V, language: L): Literal<V, L>;
+  literal<V extends string, N extends NamedNode>(value: V, dataType: N): Literal<V, "", N>;
+  literal<V extends string>(value: V, languageOrDataType?: string | NamedNodeLike): Literal<V>;
+  literal(value: string, languageOrDataType?: string | NamedNodeLike): Literal;
+  literal(value: string, languageOrDataType?: string | NamedNodeLike): Literal {
     const getLiteral = (value: string, languageOrDataType?: string | NamedNodeLike): Literal => {
       if (typeof languageOrDataType === "string") {
         return new Literal(value, languageOrDataType, this.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"));
@@ -93,7 +103,7 @@ export class DataFactory {
       return getLiteral(newValue, rest.substr(1, rest.length - 2));
     }
     return getLiteral(value, languageOrDataType);
-  };
+  }
 
   variable = (value: string): Variable => {
     return new Variable(value.replace(/^\?/, ""));
@@ -103,14 +113,16 @@ export class DataFactory {
     return new DefaultGraph();
   };
 
-  quad = (subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad => {
+  quad(subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike): Quad<QuadSubject, QuadPredicate, QuadObject, DefaultGraph>;
+  quad(subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad;
+  quad(subject: QuadSubjectLike, predicate: QuadPredicateLike, object: QuadObjectLike, graph?: QuadGraphLike): Quad {
     return new Quad(
       this.fromTerm(subject),
       this.fromTerm(predicate),
       this.fromTerm(object),
       this.fromTerm(graph)
     );
-  };
+  }
 
   fromTerm<T extends NamedNodeLike>(term: T): NamedNode;
   fromTerm<T extends BlankNodeLike>(term: T): BlankNode;
