@@ -36,7 +36,7 @@ import {
   QuadSubjectLike,
   assertQuadLike, assertQuad
 } from "./quad";
-import { isTermLike } from "./term";
+import { isTermLike, Term } from "./term";
 import UUID from "pure-uuid";
 import { isQuad } from "./quad";
 
@@ -230,6 +230,8 @@ export function isDataFactory(factory: unknown): factory is DataFactory {
   }
 }
 
+export function assertDataFactory(factory?: unknown): asserts factory is DataFactory;
+export function assertDataFactory(factory?: DataFactory): asserts factory is DataFactory;
 export function assertDataFactory(factory: DataFactory = DefaultDataFactory): asserts factory is DataFactory {
   const namedNode = factory.namedNode("");
   assertNamedNodeLike(namedNode, "");
@@ -242,18 +244,24 @@ export function assertDataFactory(factory: DataFactory = DefaultDataFactory): as
   assertBlankNode(blankNodeValue, "some value");
   const literal = factory.literal("");
   assertLiteralLike(literal, "");
+  assertNamedNodeLike(literal.datatype);
+  assertNamedNode(literal.datatype);
   assertLiteral(literal, "");
   const literalLanguage = factory.literal("", "en");
   assertLiteralLike(literalLanguage, "", "en");
+  assertNamedNodeLike(literalLanguage.datatype);
+  assertNamedNode(literalLanguage.datatype);
   assertLiteral(literalLanguage, "", "en");
-  const literalDataType = factory.literal("", {
+  const literalDataType = factory.literal("", factory.fromTerm({
     value: "number maybe?",
     termType: "NamedNode"
-  });
-  assertLiteralLike(literalDataType, "", {
+  }));
+  assertLiteralLike(literalDataType, "", factory.fromTerm({
     value: "number maybe?",
     termType: "NamedNode"
-  });
+  }));
+  assertNamedNodeLike(literalDataType.datatype);
+  assertNamedNode(literalDataType.datatype);
   assertLiteral(literalDataType, "", {
     value: "number maybe?",
     termType: "NamedNode"
@@ -280,78 +288,28 @@ export function assertDataFactory(factory: DataFactory = DefaultDataFactory): as
   assertQuadLike(quadDefaultGraph, namedNode, namedNode, blankNode, defaultGraph);
   assertQuad(quadDefaultGraph, namedNode, namedNode, blankNode, defaultGraph);
 
-  ok(factory.fromTerm(namedNode).equals(namedNode));
-  ok(factory.fromTerm(blankNode).equals(blankNode));
-  ok(factory.fromTerm(blankNodeValue).equals(blankNodeValue));
-  ok(factory.fromTerm(defaultGraph).equals(defaultGraph));
-  ok(factory.fromTerm(variable).equals(variable));
-  ok(factory.fromTerm(literal).equals(literal));
-  ok(factory.fromTerm(literalLanguage).equals(literalLanguage));
-  ok(factory.fromTerm(literalDataType).equals(literalDataType));
-  ok(factory.fromQuad(quad).equals(quad));
-  ok(factory.fromQuad(quadDefaultGraph).equals(quadDefaultGraph));
+  assertFromTerm(namedNode);
+  assertFromTerm(blankNode);
+  assertFromTerm(blankNodeValue);
+  assertFromTerm(defaultGraph);
+  assertFromTerm(variable);
+  assertFromTerm(literal);
+  assertFromTerm(literalLanguage);
+  assertFromTerm(literalDataType);
+  assertFromTerm(quad);
+  assertFromTerm(quadDefaultGraph);
 
-  ok(factory.fromTerm({
-    ...namedNode
-  }).equals(namedNode));
-  ok(factory.fromTerm({
-    ...blankNode
-  }).equals(blankNode));
-  ok(factory.fromTerm({
-    ...blankNodeValue
-  }).equals(blankNodeValue));
-  ok(factory.fromTerm({
-    ...defaultGraph
-  }).equals(defaultGraph));
-  ok(factory.fromTerm({
-    ...variable
-  }).equals(variable));
-  ok(factory.fromTerm({
-    ...literal
-  }).equals(literal));
-  ok(factory.fromTerm({
-    ...literalLanguage
-  }).equals(literalLanguage));
-  ok(factory.fromTerm({
-    ...literalDataType
-  }).equals(literalDataType));
-  ok(factory.fromQuad({
-    ...quad
-  }).equals(quad));
-  ok(factory.fromQuad({
-    ...quadDefaultGraph
-  }).equals(quadDefaultGraph));
-
-  ok(factory.fromTerm({
-    ...namedNode.toJSON()
-  }).equals(namedNode));
-  ok(factory.fromTerm({
-    ...blankNode.toJSON()
-  }).equals(blankNode));
-  ok(factory.fromTerm({
-    ...blankNodeValue.toJSON()
-  }).equals(blankNodeValue));
-  ok(factory.fromTerm({
-    ...defaultGraph.toJSON()
-  }).equals(defaultGraph));
-  ok(factory.fromTerm({
-    ...variable.toJSON()
-  }).equals(variable));
-  ok(factory.fromTerm({
-    ...literal.toJSON()
-  }).equals(literal));
-  ok(factory.fromTerm({
-    ...literalLanguage.toJSON()
-  }).equals(literalLanguage));
-  ok(factory.fromTerm({
-    ...literalDataType.toJSON()
-  }).equals(literalDataType));
-  ok(factory.fromQuad({
-    ...quad.toJSON()
-  }).equals(quad));
-  ok(factory.fromQuad({
-    ...quadDefaultGraph.toJSON()
-  }).equals(quadDefaultGraph));
+  function assertFromTerm(term: Term): asserts term is Term {
+    ok(factory.fromTerm(term).equals(term));
+    ok(factory.fromTerm({
+      ...term
+    }).equals(term));
+    if (term.toJSON) {
+      ok(factory.fromTerm({
+        ...term.toJSON()
+      }).equals(term));
+    }
+  }
 
   function ok(value: unknown, message?: string): asserts value {
     if (!value) {

@@ -29,12 +29,19 @@ export function isQuad(given?: unknown): given is Quad {
   if (!isQuadInstance(given)) {
     return false;
   }
+  function hasEqualsLike(given: unknown): given is { equals: unknown } {
+    return !!given;
+  }
+  function hasEquals(given: unknown): given is { equals(): unknown } {
+    return hasEqualsLike(given) && typeof given.equals === "function";
+  }
   return (
     given.termType === "Quad" &&
     isQuadSubject(given.subject) &&
     isQuadPredicate(given.predicate) &&
     isQuadObject(given.object) &&
-    isQuadGraph(given.graph)
+    isQuadGraph(given.graph) &&
+    hasEquals(given)
   );
 }
 
