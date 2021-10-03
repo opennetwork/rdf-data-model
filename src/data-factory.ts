@@ -230,7 +230,7 @@ export function isDataFactory(factory: unknown): factory is DataFactory {
   }
 }
 
-export function assertDataFactory(factory?: unknown): asserts factory is DataFactory;
+export function assertDataFactory(factory: unknown): asserts factory is DataFactory;
 export function assertDataFactory(factory?: DataFactory): asserts factory is DataFactory;
 export function assertDataFactory(factory: DataFactory = DefaultDataFactory): asserts factory is DataFactory {
   const namedNode = factory.namedNode("");
