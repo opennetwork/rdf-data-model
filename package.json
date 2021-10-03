@@ -12,7 +12,8 @@
     "postbuild": "node scripts/post-build.js",
     "watch": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "yarn build && node ./esnext/tests.js"
   },
   "peerDependencies": {},
   "dependencies": {
