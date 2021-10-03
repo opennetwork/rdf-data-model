@@ -22,8 +22,11 @@ export function isTerm<TermType extends string = string, Value extends string = 
   if (!isTermLike(given, termType, value)) {
     return false;
   }
-  function hasEquals(given: any): given is Record<"equals", () => {}> {
-    return !!(given && given.equals instanceof Function);
+  function hasEqualsLike(given: unknown): given is { equals: unknown } {
+    return !!given;
+  }
+  function hasEquals(given: unknown): given is { equals(): unknown } {
+    return hasEqualsLike(given) && typeof given.equals === "function";
   }
   return hasEquals(given);
 }
